@@ -1,14 +1,26 @@
-import mongoose from "mongoose";
+import { MongoClient } from "mongodb";
 
-const connectMongo = async () => {
-  try {
-    const { connection } = await mongoose.connect(process.env.MONGO_URI);
+const uri = process.env.MONGODB_URI;
+const dbName = process.env.MONGODB_DB;
 
-    if (connection.readyState == 1) {
-      console.log("Database Connected");
-    }
-  } catch (errors) {
-    return Promise.reject(errors);
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+let db;
+
+export async function connectToDatabase() {
+  // if (!client || !client.isConnected()) {
+  //   await client.connect();
+  // }
+  db = client.db(dbName);
+  console.log("Connected to MongoDB");
+}
+
+export function getDb() {
+  if (!db) {
+    throw new Error("Database not connected.");
   }
-};
-export default connectMongo;
+  return db;
+}

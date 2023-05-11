@@ -1,24 +1,26 @@
-import dbConnect from "../../../database/utils/dbConnect";
-import { getUsers, postUser } from "../../../database/controller/controller";
+import { connectToDatabase } from '../../../database/utils/dbConnect';
+import { getUsers, createUser} from '../../../database/controller/user.controller';
+
+// Attempt to connect to database
+connectToDatabase().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 
 export default async function handler(req, res) {
-  dbConnect().catch(() =>
-    res.status(405).json({ error: "Error in the Connection" })
-  );
-
-  // type of request
+  // Get HTTP method
   const { method } = req;
-  switch (method) {
-    case "GET":
-      getUsers(req, res);
-      break;
-    case "POST":
-      postUser(req, res);
-      break;
 
+  switch (method) {
+    case 'GET':
+      await getUsers(req, res);
+      break;
+    case 'POST':
+      await createUser(req, res);
+      break;
     default:
-      res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
-      res.status(405).end(`'Method', ${method} 'Not Allowed'`);
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      res.status(405).end(`Method ${method} Not Allowed`);
       break;
   }
 }

@@ -1,31 +1,29 @@
-import connectMongo from "../../../database/utils/dbConnect";
-import {
-  deleteUser,
-  getUserById,
-  updateUser,
-} from "../../../database/controller/controller";
+import { connectToDatabase } from '../../../database/utils/dbConnect';
+import { getUserById, updateUser, deleteUser } from '../../../database/controller/user.controller';
+
+// Attempt to connect to database
+connectToDatabase().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 
 export default async function handler(req, res) {
-  connectMongo().catch(() =>
-    res.status(405).json({ error: "Error in the Connection" })
-  );
-
-  // type of request
+  // Get HTTP method
   const { method } = req;
 
   switch (method) {
-    case "GET":
-      getUserById(req, res);
+    case 'GET':
+      await getUserById(req, res);
       break;
-    case "PUT":
-      updateUser(req, res);
+    case 'PUT':
+      await updateUser(req, res);
       break;
-    case "DELETE":
-      deleteUser(req, res);
+    case 'DELETE':
+      await deleteUser(req, res);
       break;
     default:
-      res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
-      res.status(405).end(`'Method', ${method} 'Not Allowed'`);
+      res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
+      res.status(405).end(`Method ${method} Not Allowed`);
       break;
   }
 }
